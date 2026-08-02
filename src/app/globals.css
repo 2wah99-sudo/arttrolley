@@ -1,0 +1,329 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-aurora: aurora 8s ease-in-out infinite alternate;
+  --animate-spotlight: spotlight 2s ease .75s 1 forwards;
+  @keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+    }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -40%) scale(1);
+    }
+  }
+  @keyframes aurora {
+  0% {
+    background-position: 0% 50%;
+    transform: rotate(-5deg) scale(0.9);
+    }
+  25% {
+    background-position: 50% 100%;
+    transform: rotate(5deg) scale(1.1);
+    }
+  50% {
+    background-position: 100% 50%;
+    transform: rotate(-3deg) scale(0.95);
+    }
+  75% {
+    background-position: 50% 0%;
+    transform: rotate(3deg) scale(1.05);
+    }
+  100% {
+    background-position: 0% 50%;
+    transform: rotate(-5deg) scale(0.9);
+    }
+  }
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #D6432F;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes at-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes at-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes at-run {
+  0%   { top: -100%; }
+  60%  { top: 100%; }
+  100% { top: 100%; }
+}
+
+/* High-impact hero atmosphere. All loops only animate transforms/opacity, so
+   they stay GPU-friendly and respect the reduced-motion rule above. */
+@keyframes at-hero-word {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
+  50% { transform: translate3d(0, -9px, 0) scale(1.018); filter: brightness(1.18); }
+}
+@keyframes at-orbit-one {
+  0% { transform: translate3d(-12vw, 16vh, 0) scale(.75); }
+  50% { transform: translate3d(22vw, -12vh, 0) scale(1.15); }
+  100% { transform: translate3d(-12vw, 16vh, 0) scale(.75); }
+}
+@keyframes at-orbit-two {
+  0% { transform: translate3d(15vw, -20vh, 0) scale(1.1); }
+  50% { transform: translate3d(-26vw, 22vh, 0) scale(.72); }
+  100% { transform: translate3d(15vw, -20vh, 0) scale(1.1); }
+}
+@keyframes at-orbit-three {
+  0%, 100% { transform: translate3d(0, -3vh, 0) scale(.65); opacity: .08; }
+  50% { transform: translate3d(-8vw, 12vh, 0) scale(1.2); opacity: .32; }
+}
+@keyframes at-button-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(214,67,47,.35), 0 10px 30px rgba(214,67,47,.12); }
+  50% { box-shadow: 0 0 0 12px rgba(214,67,47,0), 0 18px 42px rgba(214,67,47,.34); }
+}
+
+.at-hero-word {
+  display: inline-block;
+  animation: at-hero-word 5.5s cubic-bezier(.45,0,.55,1) infinite;
+  will-change: transform, filter;
+}
+.at-hero-orb {
+  position: absolute;
+  z-index: 1;
+  width: min(44vw, 34rem);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(214,67,47,.23) 0%, rgba(214,67,47,.08) 35%, transparent 70%);
+  filter: blur(5px);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+.at-hero-orb-one { animation: at-orbit-one 15s cubic-bezier(.45,0,.55,1) infinite; }
+.at-hero-orb-two { width: min(36vw, 26rem); animation: at-orbit-two 19s cubic-bezier(.45,0,.55,1) infinite; }
+.at-hero-orb-three { width: min(55vw, 44rem); animation: at-orbit-three 10s ease-in-out infinite; }
+.at-pulse-button { animation: at-button-pulse 2.8s ease-out infinite; }
+
+@keyframes fadeInWord {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeInWord 0.6s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+}
+.fade-in-subtitle {
+  animation: fadeInWord 0.7s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+}
+
+.explore-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 2.4rem;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  animation: fadeInWord 0.8s ease forwards;
+}
+.explore-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounceArrow 1.8s ease-in-out infinite;
+}
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+/* TacticalGlobe marker halo — 2.4s ease-out, scale 1 -> 1.6 -> 1, opacity .55 -> .05 -> .55 */
+@keyframes mm-pulse {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  50%  { transform: scale(1.6); opacity: 0.05; }
+  100% { transform: scale(1);   opacity: 0.55; }
+}
+
+/* crumpled red paper — the brand surface. Applied to solid accent areas so the
+   fold/crease texture reads as real material rather than a flat fill. */
+.crinkle-surface {
+  background-color: #D6432F;
+  background-image: url('/textures/crinkle-red.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Same paper, used as a texture overlay on top of an existing red fill. */
+.crinkle-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url('/textures/crinkle-red.jpg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+/* film-grain texture — the quiet detail that separates a premium build from a flat one */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
