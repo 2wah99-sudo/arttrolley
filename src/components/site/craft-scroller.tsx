@@ -25,7 +25,7 @@ const CRAFT_STEPS = [
     n: '04',
     t: 'Sun-Dry & Set',
     d: 'The cloth rests under open sky so the colour cures naturally before it is cut and stitched.',
-    img: 'https://images.pexels.com/photos/3737857/pexels-photo-3737857.jpeg?cs=tinysrgb&dpr=1&w=1000',
+    img: 'https://images.unsplash.com/photo-1604493225443-a8cc19434aec?q=80&w=1000&auto=format&fit=crop',
   },
 ];
 

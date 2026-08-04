@@ -11,8 +11,8 @@ export const BLUSH = '#D6432F';
 
 /* ---------------------------------------------------------------- reveal */
 export function Reveal({
-  children, delay = 0, className = '',
-}: { children: React.ReactNode; delay?: number; className?: string }) {
+  children, delay = 0, className = '', style,
+}: { children: React.ReactNode; delay?: number; className?: string; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null);
   const [seen, setSeen] = useState(false);
 
@@ -32,6 +32,7 @@ export function Reveal({
       ref={ref}
       className={className}
       style={{
+        ...style,
         opacity: seen ? 1 : 0,
         transform: seen ? 'translateY(0)' : 'translateY(38px)',
         transition: `opacity .8s cubic-bezier(.2,.6,.2,1) ${delay}s, transform .8s cubic-bezier(.2,.6,.2,1) ${delay}s`,
@@ -343,11 +344,55 @@ export function Manifesto() {
 
 /* ---------------------------------------------------------------- numbers */
 const STATS = [
-  { n: '40+', l: 'Hand-carved blocks in rotation' },
-  { n: '14', l: 'Karigar families we work with' },
-  { n: '100%', l: 'Natural, plant-based dyes' },
-  { n: '0', l: 'Mass-produced prints' },
+  { n: 40, suffix: '+', l: 'Hand-carved blocks in rotation' },
+  { n: 14, suffix: '', l: 'Karigar families we work with' },
+  { n: 100, suffix: '%', l: 'Natural, plant-based dyes' },
+  { n: 0, suffix: '', l: 'Mass-produced prints' },
 ];
+
+/** Counts 0 -> value once visible. ~900ms, MD3 Emphasized-ish (fast start, gentle settle). */
+function CountUp({ value, suffix }: { value: number; suffix: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [display, setDisplay] = useState(0);
+  const [seen, setSeen] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } },
+      { threshold: 0.5 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!seen) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(value);
+      return;
+    }
+    if (value === 0) return; // nothing to count toward — the "0" stat holds as-is
+    const duration = 900;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3); // cubic ease-out
+      setDisplay(Math.round(eased * value));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [seen, value]);
+
+  return (
+    <div ref={ref} className="text-4xl font-semibold tabular-nums sm:text-5xl" style={{ color: BLUSH }}>
+      {display}{suffix}
+    </div>
+  );
+}
 
 export function Numbers() {
   return (
@@ -355,7 +400,7 @@ export function Numbers() {
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-10 px-6 py-20 sm:grid-cols-4">
         {STATS.map((s, i) => (
           <Reveal key={s.l} delay={i * 0.06} className="text-center">
-            <div className="text-4xl font-semibold sm:text-5xl" style={{ color: BLUSH }}>{s.n}</div>
+            <CountUp value={s.n} suffix={s.suffix} />
             <p className="mx-auto mt-2 max-w-[10rem] text-[0.68rem] uppercase tracking-[0.1em]" style={{ color: 'rgba(214,67,47,.55)' }}>
               {s.l}
             </p>
@@ -447,20 +492,20 @@ export function Footer() {
   return (
     <footer className="px-6 pb-8 pt-16" style={{ borderTop: '1px solid rgba(214,67,47,.16)' }}>
       <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-10">
-        <div className="max-w-xs">
+        <Reveal className="max-w-xs">
           <div className="text-xl font-semibold uppercase tracking-[0.2em]" style={{ color: BLUSH }}>Arttrolley</div>
           <p className="mt-3 text-sm font-light" style={{ color: 'rgba(214,67,47,.5)' }}>
             Hand block-printed sarees and kurtis, made in small batches by artisans across Rajasthan.
           </p>
-        </div>
-        {cols.map((c) => (
-          <div key={c.h}>
+        </Reveal>
+        {cols.map((c, i) => (
+          <Reveal key={c.h} delay={0.08 + i * 0.06}>
             <h5 className="mb-3 text-[0.6rem] uppercase tracking-[0.22em]" style={{ color: BLUSH }}>{c.h}</h5>
             {c.l.map((x) => (
               <a
                 key={x.t}
                 href={x.href}
-                className="mb-2 block text-sm transition-colors duration-200"
+                className="mb-2 block text-sm transition-all duration-200 hover:translate-x-1"
                 style={{ color: 'rgba(214,67,47,.5)' }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = BLUSH)}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(214,67,47,.5)')}
@@ -468,16 +513,17 @@ export function Footer() {
                 {x.t}
               </a>
             ))}
-          </div>
+          </Reveal>
         ))}
       </div>
-      <div
+      <Reveal
+        delay={0.3}
         className="mx-auto mt-12 flex max-w-6xl flex-wrap justify-between gap-2 pt-6 text-[0.65rem]"
         style={{ borderTop: '1px solid rgba(214,67,47,.14)', color: 'rgba(214,67,47,.4)' }}
       >
         <span>© 2026 ARTTROLLEY. Pressed by hand.</span>
         <span>Jaipur · Bagru</span>
-      </div>
+      </Reveal>
     </footer>
   );
 }
