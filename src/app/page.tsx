@@ -19,11 +19,17 @@ import { CartProvider, CartDrawer } from '@/components/site/cart';
 import { CheckoutView } from '@/components/site/checkout';
 import { CinematicIntro } from '@/components/site/cinematic-intro';
 import { InkPressType } from '@/components/site/ink-press-type';
+import { KarigarOrbit } from '@/components/site/karigar-orbit';
+import { WaterfallScrub } from '@/components/site/waterfall-scrub';
+import { ThreadsIntro } from '@/components/site/threads-intro';
 
-const Hero3D = dynamic(() => import('@/components/site/hero-3d'), { ssr: false });
+const Hero3D = dynamic(() => import('@/components/site/hero-3d'), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0" style={{ background: CHARCOAL }} />,
+});
 const TacticalGlobeSection = dynamic(
   () => import('@/components/site/tactical-globe').then((m) => m.TacticalGlobeSection),
-  { ssr: false },
+  { ssr: false, loading: () => <div className="h-[100svh]" style={{ background: CHARCOAL }} /> },
 );
 
 // aurora sweep kept inside the blush family so it reads as ARTTROLLEY, not rainbow
@@ -163,6 +169,8 @@ export default function Home() {
         </div>
       </section>
 
+      <ThreadsIntro />
+      <WaterfallScrub />
       <Manifesto />
       <Marquee />
 
@@ -172,6 +180,7 @@ export default function Home() {
       <CraftInteractive />
       <InkPressType />
       <Numbers />
+      <KarigarOrbit />
       <TacticalGlobeSection />
 
       {/* ---- ACT 3 · SHOP: one memorable interaction, then the buy moment ---

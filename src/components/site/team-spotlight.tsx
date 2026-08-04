@@ -54,7 +54,7 @@ export function TeamSpotlight({
             : 'scale(0.86) rotate(-3deg)',
           transformStyle: 'preserve-3d',
           transition: mounted && hovering
-            ? 'transform .12s linear, box-shadow .3s cubic-bezier(.2,0,0,1)'
+            ? 'transform .12s cubic-bezier(.2,0,0,1), box-shadow .3s cubic-bezier(.2,0,0,1)'
             : 'opacity .7s cubic-bezier(.05,.7,.1,1), transform .7s cubic-bezier(.05,.7,.1,1), box-shadow .3s cubic-bezier(.2,0,0,1)',
         }}
       >

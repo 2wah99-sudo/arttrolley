@@ -1,7 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { gsap } from 'gsap';
+import { Flip } from 'gsap/Flip';
 import { useCart } from './cart';
+import { pauseSmoothScroll, resumeSmoothScroll } from './smooth-scroll';
+
+if (typeof window !== 'undefined') gsap.registerPlugin(Flip);
 
 const BLUSH = '#D6432F';
 const RED = '#D4222A';
@@ -42,7 +48,6 @@ export function PhantomGallery() {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [selected, setSelected] = useState<(typeof ITEMS)[number] | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [modalIn, setModalIn] = useState(false);
   const [added, setAdded] = useState(false);
   const addTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { addToCart, openDrawer } = useCart();
@@ -72,23 +77,37 @@ export function PhantomGallery() {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [render]);
 
-  useEffect(() => {
-    if (selected) {
-      const id = requestAnimationFrame(() => setModalIn(true));
-      return () => cancelAnimationFrame(id);
-    }
-    setModalIn(false);
-  }, [selected]);
+  const modalImgWrapRef = useRef<HTMLDivElement>(null);
+  const flipStateRef = useRef<Flip.FlipState | null>(null);
 
-  const openItem = (item: (typeof ITEMS)[number]) => {
+  const openItem = (item: (typeof ITEMS)[number], cellEl: HTMLElement) => {
+    flipStateRef.current = cellEl ? Flip.getState(cellEl, { props: 'borderRadius' }) : null;
     setSelected(item);
     setSelectedSize(item.sizes[0]);
   };
 
-  const closeModal = () => {
-    setModalIn(false);
-    setTimeout(() => setSelected(null), 260);
-  };
+  const closeModal = () => setSelected(null);
+
+  useLayoutEffect(() => {
+    if (!selected || !flipStateRef.current || !modalImgWrapRef.current) return;
+    Flip.from(flipStateRef.current, {
+      targets: modalImgWrapRef.current,
+      duration: 0.7,
+      ease: 'power3.inOut',
+      absolute: true,
+      props: 'borderRadius',
+    });
+    flipStateRef.current = null;
+  }, [selected]);
+
+  // Pause Lenis (not document.body.overflow — Lenis owns scroll itself via
+  // its own rAF loop, so a native overflow-lock fights it instead of
+  // cooperating) while the modal is open.
+  useEffect(() => {
+    if (!selected) return;
+    pauseSmoothScroll();
+    return () => resumeSmoothScroll();
+  }, [selected]);
 
   const handleAddToTrolley = () => {
     if (!selected || !selectedSize || added) return; // idempotent against rapid clicks
@@ -173,7 +192,7 @@ export function PhantomGallery() {
           key={key}
           onMouseEnter={() => setHoveredKey(key)}
           onMouseLeave={() => setHoveredKey(null)}
-          onClick={() => { if (movedRef.current < CLICK_THRESHOLD) openItem(item); }}
+          onClick={(e) => { if (movedRef.current < CLICK_THRESHOLD) openItem(item, e.currentTarget); }}
           className="absolute overflow-hidden rounded-2xl"
           style={{
             width: CELL_SIZE,
@@ -239,27 +258,24 @@ export function PhantomGallery() {
         Drag to explore → Tap to zoom
       </p>
 
+      <AnimatePresence>
       {selected && (
-        <div
+        <motion.div
           className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8"
           onClick={closeModal}
-          style={{
-            background: `rgba(0,0,0,${modalIn ? 0.86 : 0})`,
-            backdropFilter: modalIn ? 'blur(10px)' : 'blur(0px)',
-            transition: 'background .3s ease, backdrop-filter .3s ease',
-          }}
+          initial={{ background: 'rgba(0,0,0,0)', backdropFilter: 'blur(0px)' }}
+          animate={{ background: 'rgba(0,0,0,0.86)', backdropFilter: 'blur(10px)' }}
+          exit={{ background: 'rgba(0,0,0,0)', backdropFilter: 'blur(0px)' }}
+          transition={{ duration: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
         >
-          <div
+          <motion.div
             onClick={(e) => e.stopPropagation()}
             className="relative grid w-full max-w-4xl gap-0 overflow-hidden rounded-3xl sm:grid-cols-2"
-            style={{
-              background: '#0a0808',
-              border: `1px solid ${RED}`,
-              boxShadow: modalIn ? `0 0 0 1px rgba(212,34,42,.25), 0 30px 90px rgba(212,34,42,.25)` : 'none',
-              opacity: modalIn ? 1 : 0,
-              transform: modalIn ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(24px)',
-              transition: 'opacity .32s cubic-bezier(.2,.7,.2,1), transform .32s cubic-bezier(.2,.7,.2,1), box-shadow .32s ease',
-            }}
+            style={{ background: '#0a0808', border: `1px solid ${RED}` }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, boxShadow: '0 0 0 1px rgba(212,34,42,.25), 0 30px 90px rgba(212,34,42,.25)' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.26, ease: [0.2, 0.7, 0.2, 1] }}
           >
             <button
               onClick={closeModal}
@@ -269,7 +285,7 @@ export function PhantomGallery() {
               ✕
             </button>
 
-            <div className="relative overflow-hidden" style={{ aspectRatio: '3/4', background: '#000' }}>
+            <div ref={modalImgWrapRef} className="relative overflow-hidden" style={{ aspectRatio: '3/4', background: '#000' }}>
               <img
                 src={selected.img}
                 alt={selected.t}
@@ -326,9 +342,10 @@ export function PhantomGallery() {
                 Hand block-printed. Small batch. Ships in 3–5 days.
               </p>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </section>
   );
 }

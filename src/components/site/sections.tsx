@@ -115,7 +115,7 @@ function Head({ eyebrow, title, blurb }: { eyebrow: string; title: string; blurb
       <p className="text-[0.62rem] uppercase tracking-[0.36em]" style={{ color: 'rgba(214,67,47,.7)' }}>
         {eyebrow}
       </p>
-      <h2 className="mt-3 text-3xl font-semibold sm:text-5xl" style={{ color: BLUSH }}>
+      <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-5xl" style={{ color: BLUSH }}>
         {title}
       </h2>
       {blurb && <p className="mt-4 text-sm font-light" style={{ color: 'rgba(214,67,47,.55)' }}>{blurb}</p>}
@@ -332,7 +332,7 @@ export function Manifesto() {
           What we believe
         </p>
         <h2
-          className="mx-auto mt-6 max-w-4xl text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-6xl"
+          className="mx-auto mt-6 max-w-4xl font-serif text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-6xl"
           style={{ color: BLUSH }}
         >
           The hand that carves the block should be known.
@@ -434,7 +434,7 @@ export function Cta() {
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(214,67,47,.16), transparent 62%)' }} />
       <Reveal className="relative">
         <p className="text-[0.62rem] uppercase tracking-[0.36em]" style={{ color: 'rgba(214,67,47,.7)' }}>Join the trolley</p>
-        <h3 className="mt-3 text-3xl font-semibold sm:text-5xl" style={{ color: BLUSH }}>Get first pick of every print.</h3>
+        <h3 className="mt-3 font-serif text-3xl font-semibold sm:text-5xl" style={{ color: BLUSH }}>Get first pick of every print.</h3>
         {status === 'idle' ? (
           <form
             className="mt-9 flex flex-wrap justify-center gap-3"

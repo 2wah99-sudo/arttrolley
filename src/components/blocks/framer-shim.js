@@ -7,8 +7,11 @@ export function addPropertyControls() {}
 
 export const ControlType = new Proxy({}, { get: (_, key) => key });
 
+// `current()` reports 'preview' (i.e. "published site, not the Framer
+// canvas") since that's the live-rendering branch components expect outside
+// Framer. `useIsStaticRenderer` below is the other, more common gate.
 export const RenderTarget = {
-  current: () => 'unknown',
+  current: () => 'preview',
   canvas: 'canvas',
   export: 'export',
   preview: 'preview',
