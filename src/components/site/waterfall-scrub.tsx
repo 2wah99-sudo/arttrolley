@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useCinematicTransition } from './use-cinematic-transition';
 
 const RED = '#D6432F';
@@ -9,47 +9,32 @@ const JUNGLE = '#0d1410';
 
 /**
  * Plain, simple video playback — no 3D scene, no scroll-scrub, no
- * mouse/touch-driven interaction of any kind. Clip 1 (her, trimmed) plays
- * through, then clip 2 (the full original footage) plays after it, then
- * loops back to clip 1 — two clips lined up one after another. Labels
- * flash briefly at the very start, timed off the video itself, not scroll.
+ * mouse/touch-driven interaction of any kind. One landscape 4K clip,
+ * natively looped.
  */
 export function WaterfallScrub() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const { ref: sectionRef, style: transitionStyle } = useCinematicTransition<HTMLDivElement>();
-  const [clipIndex, setClipIndex] = useState(0);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const musicGainRef = useRef<GainNode | null>(null);
   const waterfallGainRef = useRef<GainNode | null>(null);
 
-  // waterfall-full-hq.mp4 is a corrupted file (moov atom missing, fails to
-  // decode at all) — until a valid replacement is provided, loop the one
-  // clip that actually plays instead of cutting to a dead black frame.
   // waterfall-landscape-4k.mp4 is a pre-composited 3840x2160 landscape
   // render of the (portrait-sourced) footage: full body kept in frame,
   // sides filled with a blurred/darkened duplicate baked directly into
-  // the file — no runtime CSS layering needed anymore.
-  const CLIPS = ['/videos/waterfall-landscape-4k.mp4'];
+  // the file — no runtime CSS layering needed.
+  const CLIP = '/videos/waterfall-landscape-4k.mp4';
 
-  // Advance to the next clip when the current one ends; wraps back to 0.
+  // Single clip, native loop — no manual "ended" handler reassigning .src
+  // (that forced a full reload every loop, which briefly blanked the frame
+  // to the section's bare background colour every ~4.5s).
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    const onEnded = () => setClipIndex((i) => (i + 1) % CLIPS.length);
-    video.addEventListener('ended', onEnded);
-    return () => video.removeEventListener('ended', onEnded);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.src = CLIPS[clipIndex];
     video.play().catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clipIndex]);
+  }, []);
 
   // Audio: waterfall's own track + background music, mixed through one
   // graph. Gated behind the first user gesture (browser autoplay policy) —
@@ -148,9 +133,11 @@ export function WaterfallScrub() {
       </svg>
       <video
         ref={videoRef}
+        src={CLIP}
         muted
         playsInline
         autoPlay
+        loop
         preload="auto"
         className="absolute inset-0 h-full w-full object-cover"
         style={{
