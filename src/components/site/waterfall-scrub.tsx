@@ -151,7 +151,6 @@ export function WaterfallScrub() {
         style={{
           filter: 'url(#cinema-grade) contrast(1.08) saturate(1.25) brightness(1.06)',
           background: 'transparent',
-          imageRendering: 'high-quality',
         }}
       />
       <div

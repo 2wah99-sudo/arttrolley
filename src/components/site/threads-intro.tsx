@@ -97,7 +97,6 @@ export function ThreadsIntro() {
             // Premium colour grade: warm teal-tone shadows, lifted contrast,
             // cinema-quality look — no re-encode needed.
             filter: 'contrast(1.15) saturate(1.35) brightness(1.05) sepia(0.08)',
-            imageRendering: 'high-quality',
           }}
         />
         {/* fades into the black sections above/below — same exact black,
