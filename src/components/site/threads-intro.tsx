@@ -12,34 +12,54 @@ const CHARCOAL = '#000000';
  * driven currentTime stepping controls it (autoPlay was needed once to
  * force that first frame to render, but left running it fought the manual
  * seeking every frame — that's why it didn't feel reactive before).
+ *
+ * Two motion modes:
+ *  - Idle (no scroll input recently): the clip drifts forward on its own
+ *    at a slow constant pace, so the section always reads as alive even
+ *    before anyone touches the page.
+ *  - Active (scrolling right now): drift is dropped entirely and the
+ *    video snaps to scroll position with a tight, low-latency lerp — the
+ *    "much more smooth, much more better" feel once the user is driving.
  */
 export function ThreadsIntro() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState(0);
   const targetRef = useRef(0);
+  const lastScrollAtRef = useRef(0);
 
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] });
 
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     targetRef.current = Math.min(1, Math.max(0, v));
+    lastScrollAtRef.current = performance.now();
   });
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !duration) return;
     let raf: number;
+    let idlePhase = 0;
+    let lastT = performance.now();
     const tick = (t: number) => {
-      // Small continuous idle drift layered on top of the scroll target —
-      // it never looks fully frozen even while scroll position is held.
-      const idle = Math.sin(t / 1400) * 0.015 * duration;
-      // Start ~20% into the clip, not frame 0 — the opening frames are
-      // sparse/near-empty, which read as dead black space at the cut from
-      // the hero. Map the full 0-1 scroll range onto the [0.2, 1] portion
-      // of the clip instead, so it's visually alive from the very start.
-      const base = 0.2 * duration;
-      const target = base + targetRef.current * (duration - base) + idle;
-      video.currentTime += (Math.max(0, Math.min(duration - 0.05, target)) - video.currentTime) * 0.15;
+      const dt = t - lastT;
+      lastT = t;
+      const scrolling = t - lastScrollAtRef.current < 220;
+
+      if (scrolling) {
+        // Snap toward exact scroll position, fast — the whole clip plays
+        // from its real frame 0, no skipped opening.
+        const target = targetRef.current * (duration - 0.05);
+        video.currentTime += (target - video.currentTime) * 0.35;
+      } else {
+        // Ambient auto-flow: gently ease toward the current scroll target
+        // while continuously creeping forward/back, so it never looks
+        // static even when nobody is touching it.
+        idlePhase += dt / 1000;
+        const drift = Math.sin(idlePhase / 1.6) * 0.04 * duration;
+        const target = targetRef.current * (duration - 0.05) + drift;
+        video.currentTime += (Math.max(0, Math.min(duration - 0.05, target)) - video.currentTime) * 0.06;
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);

@@ -15,6 +15,7 @@ const JUNGLE = '#0d1410';
  */
 export function WaterfallScrub() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [clipIndex, setClipIndex] = useState(0);
@@ -23,7 +24,10 @@ export function WaterfallScrub() {
   const musicGainRef = useRef<GainNode | null>(null);
   const waterfallGainRef = useRef<GainNode | null>(null);
 
-  const CLIPS = ['/videos/waterfall-trimmed-4k.mp4', '/videos/waterfall-full-hq.mp4'];
+  // waterfall-full-hq.mp4 is a corrupted file (moov atom missing, fails to
+  // decode at all) — until a valid replacement is provided, loop the one
+  // clip that actually plays instead of cutting to a dead black frame.
+  const CLIPS = ['/videos/waterfall-trimmed-4k.mp4'];
 
   // Advance to the next clip when the current one ends; wraps back to 0.
   useEffect(() => {
@@ -37,9 +41,14 @@ export function WaterfallScrub() {
 
   useEffect(() => {
     const video = videoRef.current;
+    const bg = bgVideoRef.current;
     if (!video) return;
     video.src = CLIPS[clipIndex];
     video.play().catch(() => {});
+    if (bg) {
+      bg.src = CLIPS[clipIndex];
+      bg.play().catch(() => {});
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clipIndex]);
 
@@ -85,9 +94,11 @@ export function WaterfallScrub() {
       ([e]) => {
         if (e.isIntersecting) {
           video.play().catch(() => {});
+          bgVideoRef.current?.play().catch(() => {});
           music.play().catch(() => {});
         } else {
           video.pause();
+          bgVideoRef.current?.pause();
           music.pause();
           // Belt-and-braces: silence immediately via gain too, not just
           // .pause() — the music must never be audible outside this
@@ -113,14 +124,31 @@ export function WaterfallScrub() {
     <section ref={sectionRef} className="relative h-screen w-full overflow-hidden" style={{ background: JUNGLE }}>
       <audio ref={musicRef} src="/audio/background-music.mp3" loop preload="auto" />
 
+      {/* Source footage is portrait (2160x3840). Rather than object-cover
+          (which would blow it up and crop her out of frame to fill a
+          landscape section) or object-contain alone (small centered box
+          on bare black — the original bug), fill the full landscape frame
+          with a blurred, scaled duplicate of the same clip as background,
+          and keep the sharp, uncropped, full-height clip centered on top.
+          Full bleed edge-to-edge, and the model stays completely in frame. */}
+      <video
+        ref={bgVideoRef}
+        aria-hidden
+        muted
+        playsInline
+        autoPlay
+        preload="auto"
+        className="absolute inset-0 h-full w-full object-cover scale-110"
+        style={{ filter: 'blur(40px) brightness(0.55) saturate(1.15)' }}
+      />
       <video
         ref={videoRef}
         muted
         playsInline
         autoPlay
         preload="auto"
-        className="absolute inset-0 h-full w-full object-contain"
-        style={{ filter: 'contrast(1.03) saturate(1.08) brightness(1.07)', background: '#000' }}
+        className="relative h-full w-full object-contain"
+        style={{ filter: 'contrast(1.05) saturate(1.1) brightness(1.08)', background: 'transparent' }}
       />
       <div
         className="pointer-events-none absolute inset-0"
