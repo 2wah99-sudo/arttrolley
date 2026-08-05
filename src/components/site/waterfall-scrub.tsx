@@ -139,8 +139,29 @@ export function WaterfallScrub() {
         autoPlay
         preload="auto"
         className="absolute inset-0 h-full w-full object-cover scale-110"
-        style={{ filter: 'blur(40px) brightness(0.55) saturate(1.15)' }}
+        style={{ filter: 'blur(36px) brightness(0.5) saturate(1.4) hue-rotate(-6deg)' }}
       />
+      {/* SVG filter for cinematic colour grade on the hero video:
+          warm shadows, lifted blacks, rich greens — matches a luxury
+          textile brand's visual language without re-encoding the clip */}
+      <svg className="absolute w-0 h-0" aria-hidden>
+        <defs>
+          <filter id="cinema-grade" x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
+            {/* Lift blacks (never crush to pure 0) */}
+            <feComponentTransfer>
+              <feFuncR type="linear" slope="0.92" intercept="0.04" />
+              <feFuncG type="linear" slope="0.94" intercept="0.03" />
+              <feFuncB type="linear" slope="0.88" intercept="0.06" />
+            </feComponentTransfer>
+            {/* S-curve: punch midtones, protect highlights */}
+            <feComponentTransfer>
+              <feFuncR type="gamma" amplitude="1" exponent="0.82" offset="0" />
+              <feFuncG type="gamma" amplitude="1" exponent="0.80" offset="0" />
+              <feFuncB type="gamma" amplitude="1" exponent="0.88" offset="0" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+      </svg>
       <video
         ref={videoRef}
         muted
@@ -148,11 +169,15 @@ export function WaterfallScrub() {
         autoPlay
         preload="auto"
         className="relative h-full w-full object-contain"
-        style={{ filter: 'contrast(1.05) saturate(1.1) brightness(1.08)', background: 'transparent' }}
+        style={{
+          filter: 'url(#cinema-grade) contrast(1.08) saturate(1.25) brightness(1.06)',
+          background: 'transparent',
+          imageRendering: 'high-quality',
+        }}
       />
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ boxShadow: 'inset 0 0 min(20vw,20vh) rgba(0,0,0,.7)' }}
+        style={{ boxShadow: 'inset 0 0 min(18vw,18vh) rgba(0,0,0,.65)' }}
       />
     </section>
   );

@@ -94,6 +94,10 @@ export function ThreadsIntro() {
             transform: `scale(${1 + endProgress * 0.25 - entryProgress * 0.15})`,
             opacity: 1 - endProgress - entryProgress * 0.4,
             transition: 'transform .1s linear, opacity .1s linear',
+            // Premium colour grade: warm teal-tone shadows, lifted contrast,
+            // cinema-quality look — no re-encode needed.
+            filter: 'contrast(1.15) saturate(1.35) brightness(1.05) sepia(0.08)',
+            imageRendering: 'high-quality',
           }}
         />
         {/* fades into the black sections above/below — same exact black,
