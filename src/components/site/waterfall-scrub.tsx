@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useCinematicTransition } from './use-cinematic-transition';
 
 const RED = '#D6432F';
 const WHITE = '#FFFFFF';
@@ -16,7 +17,7 @@ const JUNGLE = '#0d1410';
 export function WaterfallScrub() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const { ref: sectionRef, style: transitionStyle } = useCinematicTransition<HTMLDivElement>();
   const [clipIndex, setClipIndex] = useState(0);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -117,7 +118,11 @@ export function WaterfallScrub() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden" style={{ background: JUNGLE }}>
+    <section
+      ref={sectionRef}
+      className="relative h-screen w-full overflow-hidden"
+      style={{ background: JUNGLE, ...transitionStyle }}
+    >
       <audio ref={musicRef} src="/audio/background-music.mp3" loop preload="auto" />
 
       {/* SVG filter for cinematic colour grade on the hero video:

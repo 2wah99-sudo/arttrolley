@@ -22,6 +22,7 @@ import { InkPressType } from '@/components/site/ink-press-type';
 import { KarigarOrbit } from '@/components/site/karigar-orbit';
 import { WaterfallScrub } from '@/components/site/waterfall-scrub';
 import { ThreadsIntro } from '@/components/site/threads-intro';
+import { useCinematicTransition } from '@/components/site/use-cinematic-transition';
 
 const Hero3D = dynamic(() => import('@/components/site/hero-3d'), {
   ssr: false,
@@ -87,6 +88,7 @@ const COLLECTION_ITEMS = [
 ];
 
 export default function Home() {
+  const { ref: heroRef, style: heroTransitionStyle } = useCinematicTransition<HTMLElement>();
   return (
     <CartProvider>
     <div style={{ background: CHARCOAL }}>
@@ -104,7 +106,11 @@ export default function Home() {
 
       <main id="main-content">
       {/* ------------------------------------------------ hero */}
-      <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
+      <section
+        ref={heroRef}
+        className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden"
+        style={heroTransitionStyle}
+      >
         {/* CSS fallback so the hero is never empty if WebGL is unavailable */}
         <LiquidBackground className="absolute inset-0" />
         <Hero3D dark={CHARCOAL} light={BLUSH} className="absolute inset-0 h-full w-full" />

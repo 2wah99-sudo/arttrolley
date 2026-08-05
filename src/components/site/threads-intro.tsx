@@ -1,14 +1,22 @@
 'use client';
 
+import { useCinematicTransition } from './use-cinematic-transition';
+
 const CHARCOAL = '#000000';
 
 /**
  * Plain 4K video playback — no scroll-scrub, no idle drift, no 3D/motion
- * interaction of any kind. Just the clip, looping, full-bleed.
+ * interaction of any kind. Just the clip, looping, full-bleed. The section
+ * itself still gets the iris-wipe cinematic transition in/out of view.
  */
 export function ThreadsIntro() {
+  const { ref, style: transitionStyle } = useCinematicTransition<HTMLElement>();
   return (
-    <section className="relative h-screen w-full overflow-hidden" style={{ background: CHARCOAL }}>
+    <section
+      ref={ref}
+      className="relative h-screen w-full overflow-hidden"
+      style={{ background: CHARCOAL, ...transitionStyle }}
+    >
       <video
         src="/videos/threads-intro-4k.mp4"
         muted
