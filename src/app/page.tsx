@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { motion } from 'motion/react';
 import { AuroraText } from '@/components/ui/aurora-text';
 import { Spotlight } from '@/components/ui/spotlight';
 import { MagneticButton } from '@/components/site/magnetic-button';
@@ -88,7 +89,7 @@ const COLLECTION_ITEMS = [
 ];
 
 export default function Home() {
-  const { ref: heroRef, style: heroTransitionStyle } = useCinematicTransition<HTMLElement>();
+  const { ref: heroRef, motionStyle: heroMotionStyle } = useCinematicTransition<HTMLElement>();
   return (
     <CartProvider>
     <div style={{ background: CHARCOAL }}>
@@ -106,10 +107,10 @@ export default function Home() {
 
       <main id="main-content">
       {/* ------------------------------------------------ hero */}
-      <section
+      <motion.section
         ref={heroRef}
-        className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden"
-        style={heroTransitionStyle}
+        className="sticky top-0 flex min-h-svh flex-col items-center justify-center overflow-hidden"
+        style={heroMotionStyle}
       >
         {/* CSS fallback so the hero is never empty if WebGL is unavailable */}
         <LiquidBackground className="absolute inset-0" />
@@ -173,7 +174,7 @@ export default function Home() {
             <span className="absolute left-0 h-full w-full" style={{ background: BLUSH, animation: 'at-run 1.9s ease-in-out infinite' }} />
           </span>
         </div>
-      </section>
+      </motion.section>
 
       <ThreadsIntro />
       <WaterfallScrub />

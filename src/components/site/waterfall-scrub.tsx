@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import { useCinematicTransition } from './use-cinematic-transition';
 
 const RED = '#D6432F';
@@ -15,7 +16,7 @@ const JUNGLE = '#0d1410';
 export function WaterfallScrub() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
-  const { ref: sectionRef, style: transitionStyle } = useCinematicTransition<HTMLDivElement>();
+  const { ref: sectionRef, motionStyle } = useCinematicTransition<HTMLDivElement>();
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const musicGainRef = useRef<GainNode | null>(null);
@@ -103,10 +104,10 @@ export function WaterfallScrub() {
   }, []);
 
   return (
-    <section
+    <motion.section
       ref={sectionRef}
-      className="relative h-screen w-full overflow-hidden"
-      style={{ background: JUNGLE, ...transitionStyle }}
+      className="sticky top-0 h-screen w-full overflow-hidden"
+      style={{ background: JUNGLE, ...motionStyle }}
     >
       <audio ref={musicRef} src="/audio/background-music.mp3" loop preload="auto" />
 
@@ -149,6 +150,6 @@ export function WaterfallScrub() {
         className="pointer-events-none absolute inset-0"
         style={{ boxShadow: 'inset 0 0 min(18vw,18vh) rgba(0,0,0,.65)' }}
       />
-    </section>
+    </motion.section>
   );
 }

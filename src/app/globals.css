@@ -157,7 +157,14 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    /* Not bg-background — that shadcn variable is pure white (oklch(1 0 0))
+       and has nothing to do with this site's actual black brand. Any gap
+       between/behind sections (sticky-pinned video sections scale and
+       crossfade, so gaps do occur mid-transition) was exposing raw white
+       body underneath — the root cause of the white banding at section
+       boundaries. */
+    background: #000000;
+    @apply text-foreground;
   }
   html {
     @apply font-sans;

@@ -1,21 +1,24 @@
 'use client';
 
+import { motion } from 'motion/react';
 import { useCinematicTransition } from './use-cinematic-transition';
 
 const CHARCOAL = '#000000';
 
 /**
  * Plain 4K video playback — no scroll-scrub, no idle drift, no 3D/motion
- * interaction of any kind. Just the clip, looping, full-bleed. The section
- * itself still gets the iris-wipe cinematic transition in/out of view.
+ * interaction of any kind. Just the clip, looping, full-bleed. Sticky-
+ * pinned so the next section physically slides up and over it as you
+ * scroll past — a real, visible crossfade transition, not just a scroll
+ * boundary between two blocks.
  */
 export function ThreadsIntro() {
-  const { ref, style: transitionStyle } = useCinematicTransition<HTMLElement>();
+  const { ref, motionStyle } = useCinematicTransition<HTMLElement>();
   return (
-    <section
+    <motion.section
       ref={ref}
-      className="relative h-screen w-full overflow-hidden"
-      style={{ background: CHARCOAL, ...transitionStyle }}
+      className="sticky top-0 h-screen w-full overflow-hidden"
+      style={{ background: CHARCOAL, ...motionStyle }}
     >
       <video
         src="/videos/threads-intro-4k.mp4"
@@ -42,6 +45,6 @@ export function ThreadsIntro() {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-32"
         style={{ background: `linear-gradient(to top, ${CHARCOAL}, transparent)` }}
       />
-    </section>
+    </motion.section>
   );
 }
