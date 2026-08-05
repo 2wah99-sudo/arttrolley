@@ -158,7 +158,11 @@ export default function Hero3D({
 
     // --- THE PRESS: teak block, rim-lit, one mesh/material, never remounted
     const pressGroup = new THREE.Group();
-    pressGroup.position.set(2.15, -0.25, 0.6);
+    // x pushed out to 3.3 (was 2.15) — at that x it was sitting directly on
+    // top of the "See the craft" button and clipping the subtitle text.
+    // pressGroup.position.y is reassigned every frame in the render loop
+    // below (base -0.25 plus a breathing dip), so only x/z are fixed here.
+    pressGroup.position.set(3.3, -0.25, 0.6);
     scene.add(pressGroup);
 
     const blockUniforms = {

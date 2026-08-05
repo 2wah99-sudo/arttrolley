@@ -2,6 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { motion } from 'motion/react';
+import { BlockPressFilm } from '@/components/site/block-press-film';
+import { SareeDrapeFilm } from '@/components/site/saree-drape-film';
+import { ForestFilm } from '@/components/site/forest-film';
 import { AuroraText } from '@/components/ui/aurora-text';
 import { Spotlight } from '@/components/ui/spotlight';
 import { MagneticButton } from '@/components/site/magnetic-button';
@@ -21,8 +24,6 @@ import { CheckoutView } from '@/components/site/checkout';
 import { CinematicIntro } from '@/components/site/cinematic-intro';
 import { InkPressType } from '@/components/site/ink-press-type';
 import { KarigarOrbit } from '@/components/site/karigar-orbit';
-import { WaterfallScrub } from '@/components/site/waterfall-scrub';
-import { ThreadsIntro } from '@/components/site/threads-intro';
 import { useCinematicTransition } from '@/components/site/use-cinematic-transition';
 
 const Hero3D = dynamic(() => import('@/components/site/hero-3d'), {
@@ -176,8 +177,9 @@ export default function Home() {
         </div>
       </motion.section>
 
-      <ThreadsIntro />
-      <WaterfallScrub />
+      <BlockPressFilm />
+      <SareeDrapeFilm />
+      <ForestFilm />
       <Manifesto />
       <Marquee />
 
