@@ -81,7 +81,7 @@ export function ThreadsIntro() {
       <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden" style={{ background: CHARCOAL }}>
         <video
           ref={videoRef}
-          src="/videos/threads-intro.mp4"
+          src="/videos/threads-intro-4k.mp4"
           muted
           playsInline
           autoPlay
