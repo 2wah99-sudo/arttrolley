@@ -45,7 +45,16 @@ export function WaterfallScrub() {
     const music = musicRef.current;
     if (!video || !music) return;
 
+    // isIntersecting is the ONLY thing allowed to decide whether music is
+    // audible. unlock() used to call music.play() unconditionally on the
+    // page's very first click/scroll/touch anywhere — if that first
+    // gesture happened while still up in the hero, music started right
+    // there and kept playing until the next intersection change, i.e.
+    // "the song plays on the whole website". unlock() now only builds the
+    // audio graph (a real platform requirement — AudioContext needs a user
+    // gesture); actual play/pause is solely the IntersectionObserver's call.
     let unlocked = false;
+    let isIntersecting = false;
     const unlock = () => {
       if (unlocked) return;
       unlocked = true;
@@ -65,7 +74,7 @@ export function WaterfallScrub() {
       audioCtxRef.current = ctx;
       musicGainRef.current = musicGain;
       waterfallGainRef.current = waterfallGain;
-      music.play().catch(() => {});
+      if (isIntersecting) music.play().catch(() => {});
 
       window.removeEventListener('pointerdown', unlock);
       window.removeEventListener('wheel', unlock);
@@ -77,9 +86,10 @@ export function WaterfallScrub() {
 
     const io = new IntersectionObserver(
       ([e]) => {
+        isIntersecting = e.isIntersecting;
         if (e.isIntersecting) {
           video.play().catch(() => {});
-          music.play().catch(() => {});
+          if (unlocked) music.play().catch(() => {});
         } else {
           video.pause();
           music.pause();
