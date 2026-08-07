@@ -1,9 +1,6 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { motion } from 'motion/react';
-import { BlockPressFilm } from '@/components/site/block-press-film';
-import { SareeDrapeFilm } from '@/components/site/saree-drape-film';
 import { AuroraText } from '@/components/ui/aurora-text';
 import { Spotlight } from '@/components/ui/spotlight';
 import { MagneticButton } from '@/components/site/magnetic-button';
@@ -18,12 +15,12 @@ import { SmoothScroll } from '@/components/site/smooth-scroll';
 import { CustomCursor } from '@/components/site/custom-cursor';
 import { ProductGrid } from '@/components/site/product-grid';
 import { LiquidBackground } from '@/components/site/liquid-background';
+import { HeroDuotone } from '@/components/site/hero-duotone';
 import { CartProvider, CartDrawer } from '@/components/site/cart';
 import { CheckoutView } from '@/components/site/checkout';
 import { CinematicIntro } from '@/components/site/cinematic-intro';
 import { InkPressType } from '@/components/site/ink-press-type';
 import { KarigarOrbit } from '@/components/site/karigar-orbit';
-import { useCinematicTransition } from '@/components/site/use-cinematic-transition';
 
 const Hero3D = dynamic(() => import('@/components/site/hero-3d'), {
   ssr: false,
@@ -89,7 +86,6 @@ const COLLECTION_ITEMS = [
 ];
 
 export default function Home() {
-  const { ref: heroRef, motionStyle: heroMotionStyle } = useCinematicTransition<HTMLElement>();
   return (
     <CartProvider>
     <div style={{ background: CHARCOAL }}>
@@ -107,13 +103,10 @@ export default function Home() {
 
       <main id="main-content">
       {/* ------------------------------------------------ hero */}
-      <motion.section
-        ref={heroRef}
-        className="sticky top-0 flex min-h-svh flex-col items-center justify-center overflow-hidden"
-        style={heroMotionStyle}
-      >
+      <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
         {/* CSS fallback so the hero is never empty if WebGL is unavailable */}
-        <LiquidBackground className="absolute inset-0" />
+        <HeroDuotone />
+        <LiquidBackground className="absolute inset-0 opacity-30" />
         <Hero3D dark={CHARCOAL} light={BLUSH} className="absolute inset-0 h-full w-full" />
         <Spotlight className="-top-40 left-0 md:left-40 md:-top-20" fill={BLUSH} />
         <span aria-hidden className="at-hero-orb at-hero-orb-one" />
@@ -174,10 +167,8 @@ export default function Home() {
             <span className="absolute left-0 h-full w-full" style={{ background: BLUSH, animation: 'at-run 1.9s ease-in-out infinite' }} />
           </span>
         </div>
-      </motion.section>
+      </section>
 
-      <BlockPressFilm />
-      <SareeDrapeFilm />
       <Manifesto />
       <Marquee />
 

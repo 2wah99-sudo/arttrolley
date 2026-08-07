@@ -5,6 +5,7 @@ import { MagneticButton } from './magnetic-button';
 import { CraftScroller } from './craft-scroller';
 import { CartIcon } from './cart';
 import { setPressState, type PressState } from './press-store';
+import { LogoMark3D } from './logo-mark-3d';
 
 export const CHARCOAL = '#000000';
 export const BLUSH = '#D6432F';
@@ -61,8 +62,11 @@ export function Nav() {
         transform: show ? 'translateY(0)' : 'translateY(-100%)',
       }}
     >
-      <span className="text-sm font-semibold uppercase tracking-[0.3em]" style={{ color: BLUSH }}>
-        Arttrolley
+      <span className="flex items-center gap-2">
+        <LogoMark3D size={30} />
+        <span className="text-sm font-semibold uppercase tracking-[0.3em]" style={{ color: BLUSH }}>
+          Arttrolley
+        </span>
       </span>
       <div className="hidden gap-8 md:flex">
         {['Bazaar', 'Craft', 'Collection', 'Founder'].map((l, i) => (

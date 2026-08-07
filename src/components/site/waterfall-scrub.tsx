@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
-import { useCinematicTransition } from './use-cinematic-transition';
+import { useEffect, useRef, useState } from 'react';
 
 const RED = '#D6432F';
 const WHITE = '#FFFFFF';
@@ -10,32 +8,47 @@ const JUNGLE = '#0d1410';
 
 /**
  * Plain, simple video playback — no 3D scene, no scroll-scrub, no
- * mouse/touch-driven interaction of any kind. One landscape 4K clip,
- * natively looped.
+ * mouse/touch-driven interaction of any kind. Clip 1 (her, trimmed) plays
+ * through, then clip 2 (the full original footage) plays after it, then
+ * loops back to clip 1 — two clips lined up one after another. Labels
+ * flash briefly at the very start, timed off the video itself, not scroll.
  */
 export function WaterfallScrub() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
-  const { ref: sectionRef, motionStyle } = useCinematicTransition<HTMLDivElement>();
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [clipIndex, setClipIndex] = useState(0);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const musicGainRef = useRef<GainNode | null>(null);
   const waterfallGainRef = useRef<GainNode | null>(null);
 
+  // waterfall-full-hq.mp4 is a corrupted file (moov atom missing, fails to
+  // decode at all) — until a valid replacement is provided, loop the one
+  // clip that actually plays instead of cutting to a dead black frame.
   // waterfall-landscape-4k.mp4 is a pre-composited 3840x2160 landscape
   // render of the (portrait-sourced) footage: full body kept in frame,
   // sides filled with a blurred/darkened duplicate baked directly into
-  // the file — no runtime CSS layering needed.
-  const CLIP = '/videos/waterfall-landscape-4k.mp4';
+  // the file — no runtime CSS layering needed anymore.
+  const CLIPS = ['/videos/waterfall-landscape-4k.mp4'];
 
-  // Single clip, native loop — no manual "ended" handler reassigning .src
-  // (that forced a full reload every loop, which briefly blanked the frame
-  // to the section's bare background colour every ~4.5s).
+  // Advance to the next clip when the current one ends; wraps back to 0.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    video.play().catch(() => {});
+    const onEnded = () => setClipIndex((i) => (i + 1) % CLIPS.length);
+    video.addEventListener('ended', onEnded);
+    return () => video.removeEventListener('ended', onEnded);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.src = CLIPS[clipIndex];
+    video.play().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clipIndex]);
 
   // Audio: waterfall's own track + background music, mixed through one
   // graph. Gated behind the first user gesture (browser autoplay policy) —
@@ -45,16 +58,7 @@ export function WaterfallScrub() {
     const music = musicRef.current;
     if (!video || !music) return;
 
-    // isIntersecting is the ONLY thing allowed to decide whether music is
-    // audible. unlock() used to call music.play() unconditionally on the
-    // page's very first click/scroll/touch anywhere — if that first
-    // gesture happened while still up in the hero, music started right
-    // there and kept playing until the next intersection change, i.e.
-    // "the song plays on the whole website". unlock() now only builds the
-    // audio graph (a real platform requirement — AudioContext needs a user
-    // gesture); actual play/pause is solely the IntersectionObserver's call.
     let unlocked = false;
-    let isIntersecting = false;
     const unlock = () => {
       if (unlocked) return;
       unlocked = true;
@@ -74,7 +78,7 @@ export function WaterfallScrub() {
       audioCtxRef.current = ctx;
       musicGainRef.current = musicGain;
       waterfallGainRef.current = waterfallGain;
-      if (isIntersecting) music.play().catch(() => {});
+      music.play().catch(() => {});
 
       window.removeEventListener('pointerdown', unlock);
       window.removeEventListener('wheel', unlock);
@@ -86,10 +90,9 @@ export function WaterfallScrub() {
 
     const io = new IntersectionObserver(
       ([e]) => {
-        isIntersecting = e.isIntersecting;
         if (e.isIntersecting) {
           video.play().catch(() => {});
-          if (unlocked) music.play().catch(() => {});
+          music.play().catch(() => {});
         } else {
           video.pause();
           music.pause();
@@ -114,11 +117,7 @@ export function WaterfallScrub() {
   }, []);
 
   return (
-    <motion.section
-      ref={sectionRef}
-      className="sticky top-0 h-screen w-full overflow-hidden"
-      style={{ background: JUNGLE, ...motionStyle }}
-    >
+    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden" style={{ background: JUNGLE }}>
       <audio ref={musicRef} src="/audio/background-music.mp3" loop preload="auto" />
 
       {/* SVG filter for cinematic colour grade on the hero video:
@@ -144,11 +143,9 @@ export function WaterfallScrub() {
       </svg>
       <video
         ref={videoRef}
-        src={CLIP}
         muted
         playsInline
         autoPlay
-        loop
         preload="auto"
         className="absolute inset-0 h-full w-full object-cover"
         style={{
@@ -160,6 +157,6 @@ export function WaterfallScrub() {
         className="pointer-events-none absolute inset-0"
         style={{ boxShadow: 'inset 0 0 min(18vw,18vh) rgba(0,0,0,.65)' }}
       />
-    </motion.section>
+    </section>
   );
 }
