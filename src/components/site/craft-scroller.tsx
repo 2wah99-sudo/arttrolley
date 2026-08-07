@@ -49,7 +49,7 @@ export function CraftScroller() {
   }, []);
 
   return (
-    <section id="craft" ref={wrapRef} style={{ background: 'rgba(0,0,0,.16)' }}>
+    <section id="craft" ref={wrapRef} style={{ background: '#000' }}>
       <div className="mx-auto max-w-5xl px-6 pb-24">
         {/* Header */}
         <div className="mb-16 text-center">

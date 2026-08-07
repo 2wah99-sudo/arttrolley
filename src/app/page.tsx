@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import { motion } from 'motion/react';
 import { BlockPressFilm } from '@/components/site/block-press-film';
 import { SareeDrapeFilm } from '@/components/site/saree-drape-film';
-import { ForestFilm } from '@/components/site/forest-film';
 import { AuroraText } from '@/components/ui/aurora-text';
 import { Spotlight } from '@/components/ui/spotlight';
 import { MagneticButton } from '@/components/site/magnetic-button';
@@ -179,7 +178,6 @@ export default function Home() {
 
       <BlockPressFilm />
       <SareeDrapeFilm />
-      <ForestFilm />
       <Manifesto />
       <Marquee />
 

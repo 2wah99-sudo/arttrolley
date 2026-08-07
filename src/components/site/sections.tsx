@@ -396,7 +396,7 @@ function CountUp({ value, suffix }: { value: number; suffix: string }) {
 
 export function Numbers() {
   return (
-    <section style={{ background: 'rgba(0,0,0,.16)' }}>
+    <section style={{ background: '#000' }}>
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-10 px-6 py-20 sm:grid-cols-4">
         {STATS.map((s, i) => (
           <Reveal key={s.l} delay={i * 0.06} className="text-center">

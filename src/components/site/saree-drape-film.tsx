@@ -9,6 +9,11 @@ const CHARCOAL = '#000000';
 export function SareeDrapeFilm() {
   const { ref, motionStyle } = useCinematicTransition<HTMLElement>();
   return (
+    // Wrapper scopes the sticky pin to this section's own scroll runway.
+    // Without it the sticky child is a direct sibling of every other
+    // section in <main>, so it stays pinned behind the entire rest of the
+    // page — the video kept showing through sections far below it.
+    <div className="relative h-[180vh]" style={{ background: CHARCOAL }}>
     <motion.section
       ref={ref}
       className="sticky top-0 h-screen w-full overflow-hidden"
@@ -33,5 +38,6 @@ export function SareeDrapeFilm() {
         </p>
       </div>
     </motion.section>
+    </div>
   );
 }
