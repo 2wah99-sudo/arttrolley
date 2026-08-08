@@ -16,6 +16,7 @@ import { CustomCursor } from '@/components/site/custom-cursor';
 import { ProductGrid } from '@/components/site/product-grid';
 import { LiquidBackground } from '@/components/site/liquid-background';
 import { HeroDuotone } from '@/components/site/hero-duotone';
+import { ThreadWeaveIntro } from '@/components/site/thread-weave-intro';
 import { CartProvider, CartDrawer } from '@/components/site/cart';
 import { CheckoutView } from '@/components/site/checkout';
 import { CinematicIntro } from '@/components/site/cinematic-intro';
@@ -102,12 +103,12 @@ export default function Home() {
       <Nav />
 
       <main id="main-content">
+      <ThreadWeaveIntro />
       {/* ------------------------------------------------ hero */}
-      <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden" style={{ background: '#DBC9B1' }}>
         {/* CSS fallback so the hero is never empty if WebGL is unavailable */}
-        <HeroDuotone />
-        <LiquidBackground className="absolute inset-0 opacity-30" />
-        <Hero3D dark={CHARCOAL} light={BLUSH} className="absolute inset-0 h-full w-full" />
+        <LiquidBackground className="absolute inset-0" />
+        <Hero3D dark="#DBC9B1" light={BLUSH} className="absolute inset-0 h-full w-full" />
         <Spotlight className="-top-40 left-0 md:left-40 md:-top-20" fill={BLUSH} />
         <span aria-hidden className="at-hero-orb at-hero-orb-one" />
         <span aria-hidden className="at-hero-orb at-hero-orb-two" />
@@ -167,6 +168,10 @@ export default function Home() {
             <span className="absolute left-0 h-full w-full" style={{ background: BLUSH, animation: 'at-run 1.9s ease-in-out infinite' }} />
           </span>
         </div>
+      </section>
+
+      <section className="relative h-screen w-full overflow-hidden">
+        <HeroDuotone />
       </section>
 
       <Manifesto />

@@ -84,6 +84,11 @@
 }
 
 :root {
+  --ink: #1C1613;
+  --madder: #A8291F;
+  --indigo: #2B3A55;
+  --turmeric: #C98A2C;
+  --parchment: #DBC9B1;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -243,9 +248,8 @@
   aspect-ratio: 1;
   border-radius: 999px;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(214,67,47,.23) 0%, rgba(214,67,47,.08) 35%, transparent 70%);
+  background: radial-gradient(circle, rgba(168,41,31,.85) 0%, rgba(168,41,31,.4) 35%, transparent 70%);
   filter: blur(5px);
-  mix-blend-mode: screen;
   will-change: transform, opacity;
 }
 .at-hero-orb-one { animation: at-orbit-one 15s cubic-bezier(.45,0,.55,1) infinite; }

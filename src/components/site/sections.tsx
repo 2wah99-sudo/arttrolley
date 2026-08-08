@@ -57,7 +57,7 @@ export function Nav() {
     <nav
       className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-4 backdrop-blur-md transition-transform duration-500 sm:px-8"
       style={{
-        background: 'rgba(51,43,43,.72)',
+        background: 'rgba(219,201,177,.92)',
         borderBottom: `1px solid ${show ? 'rgba(214,67,47,.16)' : 'transparent'}`,
         transform: show ? 'translateY(0)' : 'translateY(-100%)',
       }}

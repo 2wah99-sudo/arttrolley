@@ -13,7 +13,7 @@ export function LiquidBackground({ className = '' }: { className?: string }) {
     <Warp
       className={className}
       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-      colors={['#160D0C', '#D6432F', '#160D0C', '#7A241A']}
+      colors={['#DBC9B1', '#C9A876', '#DBC9B1', '#E8DCC8']}
       proportion={0.45}
       softness={1}
       distortion={0.28}
