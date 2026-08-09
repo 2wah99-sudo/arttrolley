@@ -9,8 +9,6 @@ const BLUSH = '#F2C4BB';
 
 const WORD = 'ARTTROLLEY';
 const THREAD_COUNT = 64;
-const GRID = 8; // 8x8 weave (64 threads: 32 horizontal + 32 vertical, doubled for density)
-const CLOTH_SIZE = 3.2;
 
 /**
  * Welcome sequence: the wordmark types in on load, then the thread canvas
@@ -51,38 +49,114 @@ export function ThreadWeaveIntro() {
 
     // Each thread: scattered endpoints (chaos) -> woven endpoints (grid).
     // Precomputed once; every frame just lerps between the two by progress.
-    type Thread = { line: THREE.Line; scattered: THREE.Vector3[]; woven: THREE.Vector3[] };
+    // A real line-art figure is several INDEPENDENT strokes (hair outline,
+    // head, arm, torso/back, vine) — one continuous curve can't branch, so
+    // it flattened everything into one path. Using separate curves per
+    // stroke instead, each getting its own share of threads.
+    const strokes = [
+      // hair / head outline (bun to jaw)
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.02, 1.62, 0),
+        new THREE.Vector3(0.22, 1.58, 0),
+        new THREE.Vector3(0.3, 1.45, 0),
+        new THREE.Vector3(0.15, 1.32, 0),
+        new THREE.Vector3(0.24, 1.2, 0),
+        new THREE.Vector3(0.1, 1.08, 0),
+        new THREE.Vector3(0.02, 0.98, 0),
+      ]),
+      // neck + shoulder line
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.02, 0.98, 0),
+        new THREE.Vector3(-0.08, 0.88, 0),
+        new THREE.Vector3(-0.32, 0.78, 0),
+        new THREE.Vector3(-0.42, 0.6, 0),
+      ]),
+      // raised arm, elbow, hand resting near shoulder
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.42, 0.6, 0),
+        new THREE.Vector3(-0.5, 0.35, 0),
+        new THREE.Vector3(-0.38, 0.15, 0),
+        new THREE.Vector3(-0.45, -0.05, 0),
+        new THREE.Vector3(-0.28, 0.1, 0),
+        new THREE.Vector3(-0.15, 0.35, 0),
+        new THREE.Vector3(-0.2, 0.55, 0),
+      ]),
+      // torso / back curve, waist to hip
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.02, 0.98, 0),
+        new THREE.Vector3(0.28, 0.7, 0),
+        new THREE.Vector3(0.22, 0.35, 0),
+        new THREE.Vector3(0.32, 0.0, 0),
+        new THREE.Vector3(0.2, -0.35, 0),
+        new THREE.Vector3(0.3, -0.7, 0),
+        new THREE.Vector3(0.15, -1.0, 0),
+      ]),
+      // trailing floral vine
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.15, -1.0, 0),
+        new THREE.Vector3(0.05, -1.15, 0),
+        new THREE.Vector3(0.3, -1.3, 0),
+        new THREE.Vector3(0.1, -1.5, 0),
+        new THREE.Vector3(0.35, -1.6, 0),
+      ]),
+    ];
+    const strokeLens = strokes.map((s) => s.getLength());
+    const totalLen = strokeLens.reduce((a, b) => a + b, 0);
+    const VERTS_PER_THREAD = 6;
+
+    // Pick which stroke + arc position a given thread index falls on,
+    // weighted by each stroke's length so density stays even.
+    const pickStroke = (i: number) => {
+      const target = (i / THREAD_COUNT) * totalLen;
+      let acc = 0;
+      for (let s = 0; s < strokes.length; s++) {
+        if (target <= acc + strokeLens[s]) return { curve: strokes[s], localT: (target - acc) / strokeLens[s] };
+        acc += strokeLens[s];
+      }
+      return { curve: strokes[strokes.length - 1], localT: 0.99 };
+    };
+
+    type Thread = {
+      line: THREE.Line;
+      scattered: THREE.Vector3[];
+      woven: THREE.Vector3[];
+      noiseSeed: number;
+    };
     const threads: Thread[] = [];
-    const half = CLOTH_SIZE / 2;
 
     for (let i = 0; i < THREAD_COUNT; i++) {
-      const scattered = [
-        new THREE.Vector3((Math.random() - 0.5) * 9, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4),
-        new THREE.Vector3((Math.random() - 0.5) * 9, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4),
-      ];
+      // Scattered: wild flung-out positions, further out for a "crazy"
+      // flying-threads feel, each with its own noise seed for writhing motion.
+      const scattered: THREE.Vector3[] = [];
+      const flingX = (Math.random() - 0.5) * 14;
+      const flingY = (Math.random() - 0.5) * 9;
+      for (let v = 0; v < VERTS_PER_THREAD; v++) {
+        scattered.push(new THREE.Vector3(
+          flingX + (Math.random() - 0.5) * 2.5,
+          flingY + (Math.random() - 0.5) * 2.5,
+          (Math.random() - 0.5) * 6,
+        ));
+      }
 
-      const isHorizontal = i % 2 === 0;
-      const idx = Math.floor(i / 2) % GRID;
-      const t = idx / (GRID - 1);
-      const z = isHorizontal ? 0.01 : -0.01; // alternate depth = plain-weave over/under illusion
-      let woven: THREE.Vector3[];
-      if (isHorizontal) {
-        const y = -half + t * CLOTH_SIZE;
-        woven = [new THREE.Vector3(-half, y, z), new THREE.Vector3(half, y, z)];
-      } else {
-        const x = -half + t * CLOTH_SIZE;
-        woven = [new THREE.Vector3(x, -half, z), new THREE.Vector3(x, half, z)];
+      // Woven: a short window along this thread's assigned stroke, so each
+      // thread traces one flowing stretch of that stroke's outline.
+      const { curve, localT } = pickStroke(i);
+      const windowLen = 0.16;
+      const woven: THREE.Vector3[] = [];
+      for (let v = 0; v < VERTS_PER_THREAD; v++) {
+        const t = Math.min(1, Math.max(0, localT + (v / (VERTS_PER_THREAD - 1) - 0.5) * windowLen));
+        woven.push(curve.getPointAt(t).clone());
       }
 
       const geo = new THREE.BufferGeometry().setFromPoints(scattered);
       const mat = new THREE.LineBasicMaterial({
-        color: isHorizontal ? MADDER : BLUSH,
+        color: i % 2 === 0 ? MADDER : BLUSH,
         transparent: true,
         opacity: 0.85,
       });
       const line = new THREE.Line(geo, mat);
       scene.add(line);
-      threads.push({ line, scattered, woven });
+      threads.push({ line, scattered, woven, noiseSeed: Math.random() * 100 });
     }
 
     const resize = () => {
@@ -105,17 +179,23 @@ export function ThreadWeaveIntro() {
     onScroll();
 
     let raf: number;
-    const tick = () => {
+    const tick = (now: number) => {
       // Smooth spring toward the scroll-derived target — buttery, and
       // still fully reversible since the target itself is scroll position.
       displayRef.current += (progressRef.current - displayRef.current) * 0.08;
       const p = displayRef.current;
       const eased = p * p * (3 - 2 * p); // smoothstep
+      const time = now * 0.001;
 
       for (const t of threads) {
         const positions = t.line.geometry.attributes.position;
-        for (let v = 0; v < 2; v++) {
-          const sx = t.scattered[v].x, sy = t.scattered[v].y, sz = t.scattered[v].z;
+        // Writhing "crazy" flight noise — strong while scattered, fades to
+        // nothing as the thread settles into the silhouette (1 - eased).
+        const chaos = (1 - eased) * 0.5;
+        for (let v = 0; v < VERTS_PER_THREAD; v++) {
+          const nx = Math.sin(time * 1.3 + t.noiseSeed + v) * chaos;
+          const ny = Math.cos(time * 1.7 + t.noiseSeed * 1.3 + v) * chaos;
+          const sx = t.scattered[v].x + nx, sy = t.scattered[v].y + ny, sz = t.scattered[v].z;
           const wx = t.woven[v].x, wy = t.woven[v].y, wz = t.woven[v].z;
           positions.setXYZ(v, sx + (wx - sx) * eased, sy + (wy - sy) * eased, sz + (wz - sz) * eased);
         }
@@ -125,7 +205,7 @@ export function ThreadWeaveIntro() {
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
     };
-    tick();
+    tick(0);
 
     return () => {
       cancelAnimationFrame(raf);

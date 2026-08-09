@@ -17,6 +17,7 @@ import { ProductGrid } from '@/components/site/product-grid';
 import { LiquidBackground } from '@/components/site/liquid-background';
 import { HeroDuotone } from '@/components/site/hero-duotone';
 import { ThreadWeaveIntro } from '@/components/site/thread-weave-intro';
+import { FashionScene } from '@/components/fashion-scene/FashionScene';
 import { CartProvider, CartDrawer } from '@/components/site/cart';
 import { CheckoutView } from '@/components/site/checkout';
 import { CinematicIntro } from '@/components/site/cinematic-intro';
@@ -104,75 +105,12 @@ export default function Home() {
 
       <main id="main-content">
       <ThreadWeaveIntro />
-      {/* ------------------------------------------------ hero */}
-      <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden" style={{ background: '#DBC9B1' }}>
-        {/* CSS fallback so the hero is never empty if WebGL is unavailable */}
-        <LiquidBackground className="absolute inset-0" />
-        <Hero3D dark="#DBC9B1" light={BLUSH} className="absolute inset-0 h-full w-full" />
-        <Spotlight className="-top-40 left-0 md:left-40 md:-top-20" fill={BLUSH} />
-        <span aria-hidden className="at-hero-orb at-hero-orb-one" />
-        <span aria-hidden className="at-hero-orb at-hero-orb-two" />
-        <span aria-hidden className="at-hero-orb at-hero-orb-three" />
-
-        <ScrollFadeOut className="relative z-10 px-6 text-center">
-          <p
-            className="text-[0.62rem] uppercase tracking-[0.42em]"
-            style={{ color: 'rgba(214,67,47,.72)', animation: 'at-up .9s .1s both' }}
-          >
-            Handblock Sarees &amp; Kurtis
-          </p>
-          <h1
-            className="mt-5 font-extrabold uppercase leading-[0.92] tracking-[0.06em] text-[15vw] sm:text-[11vw] lg:text-[8.5rem]"
-            style={{ animation: 'at-up 1s .25s both' }}
-          >
-            <AuroraText
-              colors={AURORA}
-              speed={0.8}
-            className="at-hero-word [filter:drop-shadow(0_0_42px_rgba(214,67,47,.34))]"
-            >
-              Arttrolley
-            </AuroraText>
-          </h1>
-          <p
-            className="mx-auto mt-6 max-w-lg text-sm font-light sm:text-base"
-            style={{ color: 'rgba(214,67,47,.62)', animation: 'at-up 1s .45s both' }}
-          >
-            Every press tells a story. Hand-carved blocks, natural dyes, and the karigars of
-            Rajasthan — carried straight to your wardrobe.
-          </p>
-          <div className="mt-9 flex flex-wrap justify-center gap-3" style={{ animation: 'at-up 1s .6s both' }}>
-            <MagneticButton
-              href="#bazaar"
-              strength={0.4}
-              className="at-pulse-button crinkle-surface rounded-full px-7 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.18em]"
-              style={{ color: '#fff', display: 'inline-block' }}
-            >
-              Enter the bazaar
-            </MagneticButton>
-            <MagneticButton
-              href="#craft"
-              strength={0.4}
-              className="rounded-full px-7 py-3 text-[0.65rem] uppercase tracking-[0.18em]"
-              style={{ border: `1px solid ${BLUSH}`, color: BLUSH, display: 'inline-block' }}
-            >
-              See the craft
-            </MagneticButton>
-          </div>
-        </ScrollFadeOut>
-
-        <div className="absolute bottom-8 z-10 flex flex-col items-center gap-2">
-          <span className="text-[0.55rem] uppercase tracking-[0.24em]" style={{ color: 'rgba(214,67,47,.45)' }}>
-            Scroll
-          </span>
-          <span className="relative h-9 w-px overflow-hidden" style={{ background: 'rgba(214,67,47,.25)' }}>
-            <span className="absolute left-0 h-full w-full" style={{ background: BLUSH, animation: 'at-run 1.9s ease-in-out infinite' }} />
-          </span>
-        </div>
-      </section>
 
       <section className="relative h-screen w-full overflow-hidden">
         <HeroDuotone />
       </section>
+
+      <DressWeaveReveal />
 
       <Manifesto />
       <Marquee />
