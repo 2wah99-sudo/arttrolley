@@ -36,7 +36,7 @@ function buildGarmentStrokes() {
   return [outline, drape];
 }
 
-type Thread = { geo: THREE.BufferGeometry; scattered: THREE.Vector3[]; woven: THREE.Vector3[]; seed: number; color: string };
+type Thread = { line: THREE.Line; geo: THREE.BufferGeometry; scattered: THREE.Vector3[]; woven: THREE.Vector3[]; seed: number };
 
 export function FabricTransition({ progress }: { progress: React.RefObject<number> }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -82,7 +82,12 @@ export function FabricTransition({ progress }: { progress: React.RefObject<numbe
           woven.push(p);
         }
         const geo = new THREE.BufferGeometry().setFromPoints(scattered);
-        out.push({ geo, scattered, woven, seed: Math.random() * 100, color: isRed ? MADDER : BLUSH });
+        // Built as a real THREE.Line here (not JSX <line>) — R3F's <line>
+        // collides with the DOM/SVG <line> element in TS's JSX namespace,
+        // which was resolving to the wrong type entirely.
+        const mat = new THREE.LineBasicMaterial({ color: isRed ? MADDER : BLUSH, transparent: true, opacity: 0.85 });
+        const line = new THREE.Line(geo, mat);
+        out.push({ line, geo, scattered, woven, seed: Math.random() * 100 });
       }
     }
     return out;
@@ -112,9 +117,8 @@ export function FabricTransition({ progress }: { progress: React.RefObject<numbe
     if (groupRef.current) {
       groupRef.current.visible = p < 0.85; // fades out of relevance once outfits take over
       const opacity = 1 - Math.max(0, (p - 0.7) / 0.15);
-      groupRef.current.children.forEach((c) => {
-        const line = c as THREE.Line;
-        (line.material as THREE.LineBasicMaterial).opacity = Math.max(0, opacity) * 0.85;
+      threads.forEach((t) => {
+        (t.line.material as THREE.LineBasicMaterial).opacity = Math.max(0, opacity) * 0.85;
       });
     }
   });
@@ -122,9 +126,7 @@ export function FabricTransition({ progress }: { progress: React.RefObject<numbe
   return (
     <group ref={groupRef}>
       {threads.map((t, i) => (
-        <line key={i} geometry={t.geo}>
-          <lineBasicMaterial color={t.color} transparent opacity={0.85} />
-        </line>
+        <primitive key={i} object={t.line} />
       ))}
     </group>
   );

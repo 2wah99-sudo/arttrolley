@@ -110,7 +110,7 @@ export default function Home() {
         <HeroDuotone />
       </section>
 
-      <DressWeaveReveal />
+      <FashionScene />
 
       <Manifesto />
       <Marquee />
