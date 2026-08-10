@@ -1,0 +1,79 @@
+{
+  "_comment": "All garment parameters in one place. Tune these and re-run scripts/generate_garment.py — no code edits needed. Units are Blender metres; the figure is ~1.65m tall.",
+
+  "body": {
+    "height": 1.65,
+    "shoulder_width": 0.19,
+    "waist_width": 0.13,
+    "hip_width": 0.19,
+    "segments": 24
+  },
+
+  "saree": {
+    "skirt_top_radius": 0.145,
+    "skirt_bottom_radius": 0.30,
+    "skirt_length": 0.95,
+    "waist_height": 0.95,
+    "pleats": 7,
+    "pleat_depth": 0.035,
+    "pleat_spread": 0.9,
+    "radial_segments": 64,
+    "vertical_segments": 28
+  },
+
+  "pallu": {
+    "length": 0.92,
+    "width": 0.26,
+    "shoulder_height": 1.20,
+    "drape_offset_x": -0.10,
+    "segments_u": 14,
+    "segments_v": 30,
+    "fold_intensity": 0.6,
+    "_comment": "shoulder_height must sit AT the blouse top (blouse.bottom_height + blouse.height = 1.22), not above it — higher values leave the pallu floating detached beside the body."
+  },
+
+  "blouse": {
+    "height": 0.30,
+    "bottom_height": 0.92,
+    "radius": 0.150,
+    "sleeve_length": 0.13
+  },
+
+  "cloth_sim": {
+    "enabled": false,
+    "frames": 40,
+    "quality": 4,
+    "mass": 0.18,
+    "tension_stiffness": 12,
+    "compression_stiffness": 12,
+    "shear_stiffness": 4,
+    "bending_stiffness": 0.35,
+    "air_damping": 1.2,
+    "_comment": "DISABLED: headless cloth sim silently no-opped and is far too slow on 2 cores. Drape is now procedural (see drape_folds) — deterministic, instant, and visually better. Re-enable only on a stronger machine."
+  },
+
+  "drape_folds": {
+    "skirt_fold_count": 14,
+    "skirt_fold_depth": 0.018,
+    "pallu_fold_count": 6,
+    "pallu_fold_depth": 0.022,
+    "pallu_sway": 0.10
+  },
+
+  "material": {
+    "fabric": "silk",
+    "base_texture": "public/prints/saree-ajrakh-1.jpg",
+    "border_color": [0.39, 0.022, 0.013, 1.0],
+    "blouse_color": [0.39, 0.022, 0.013, 1.0],
+    "_color_note": "These are LINEAR values, not sRGB hex. Blender converts linear->sRGB for display, so sRGB #A8291F becomes ~[0.39, 0.022, 0.013] here. Entering sRGB values directly renders washed-out/pink.",
+    "silk": { "roughness": 0.32, "sheen": 0.55, "specular": 0.6 },
+    "cotton": { "roughness": 0.78, "sheen": 0.12, "specular": 0.3 },
+    "uv_scale": [1.6, 2.0]
+  },
+
+  "export": {
+    "output_high": "public/models/saree.glb",
+    "output_low": "public/models/saree_low.glb",
+    "decimate_low": 0.35
+  }
+}

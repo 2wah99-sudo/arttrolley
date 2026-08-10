@@ -5,8 +5,12 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 const MADDER = '#A8291F';
-const BLUSH = '#F2C4BB';
-const VERTS = 10;
+// The ivory garment's threads read as a warm taupe rather than actual
+// cream: flat cream lines on the cream (#DBC9B1) backdrop had almost zero
+// contrast and disappeared. This is the shadow-tone of ivory fabric, so it
+// still belongs to the same garment while staying legible.
+const IVORY_THREAD = '#8C7150';
+const VERTS = 18; // enough segments that a hanging strand curves smoothly
 const THREADS_PER_GARMENT = 70;
 const CLUSTER_X = [-4.2, -1.4, 1.4, 4.2];
 const FINAL_X = [-1.3, 1.3];
@@ -60,15 +64,26 @@ export function FabricTransition({ progress }: { progress: React.RefObject<numbe
       const isRed = g % 2 === 0;
       const finalX = FINAL_X[isRed ? 0 : 1];
       for (let i = 0; i < THREADS_PER_GARMENT; i++) {
-        const cx = CLUSTER_X[g];
-        const jitterY = (Math.random() - 0.5) * 2.2;
+        // Each thread is a smooth hanging STRAND, not a cloud of points.
+        // Previously every vertex got an independent random position, so
+        // consecutive points jumped around and the line rendered as a
+        // jagged scribble instead of a fibre. Now x/z are fixed per strand
+        // (with a gentle sine drift for natural hang) and y descends
+        // monotonically from top to bottom.
+        const cx = CLUSTER_X[g] + (Math.random() - 0.5) * 0.55;
+        const cz = (Math.random() - 0.5) * 0.5;
+        const topY = 2.4 + Math.random() * 0.3;
+        const strandLen = 2.6 + Math.random() * 1.4;
+        const drift = 0.05 + Math.random() * 0.08;
+        const phase = Math.random() * Math.PI * 2;
         const scattered: THREE.Vector3[] = [];
         for (let v = 0; v < VERTS; v++) {
+          const f = v / (VERTS - 1); // 0 at top → 1 at bottom
           scattered.push(
             new THREE.Vector3(
-              cx + (Math.random() - 0.5) * 0.5,
-              jitterY + (Math.random() - 0.5) * 0.5,
-              (Math.random() - 0.5) * 0.6,
+              cx + Math.sin(f * 2.2 + phase) * drift,
+              topY - f * strandLen,
+              cz + Math.cos(f * 1.8 + phase) * drift * 0.6,
             ),
           );
         }
@@ -85,7 +100,11 @@ export function FabricTransition({ progress }: { progress: React.RefObject<numbe
         // Built as a real THREE.Line here (not JSX <line>) — R3F's <line>
         // collides with the DOM/SVG <line> element in TS's JSX namespace,
         // which was resolving to the wrong type entirely.
-        const mat = new THREE.LineBasicMaterial({ color: isRed ? MADDER : BLUSH, transparent: true, opacity: 0.85 });
+        const mat = new THREE.LineBasicMaterial({
+          color: isRed ? MADDER : IVORY_THREAD,
+          transparent: true,
+          opacity: 0.7,
+        });
         const line = new THREE.Line(geo, mat);
         out.push({ line, geo, scattered, woven, seed: Math.random() * 100 });
       }
@@ -118,7 +137,7 @@ export function FabricTransition({ progress }: { progress: React.RefObject<numbe
       groupRef.current.visible = p < 0.85; // fades out of relevance once outfits take over
       const opacity = 1 - Math.max(0, (p - 0.7) / 0.15);
       threads.forEach((t) => {
-        (t.line.material as THREE.LineBasicMaterial).opacity = Math.max(0, opacity) * 0.85;
+        (t.line.material as THREE.LineBasicMaterial).opacity = Math.max(0, opacity) * 0.7;
       });
     }
   });
