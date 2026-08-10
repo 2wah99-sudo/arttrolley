@@ -1,0 +1,120 @@
+{
+  "_comment": "Cream floral kurti, matched to the reference video: semi-fitted straight silhouette with slight A-line, mandarin collar, 3/4 fitted sleeves, side slits from the hip, straight hem. All measurements are Blender metres on a ~1.65m figure. Values are HALF-widths (radii), not full widths.",
+  "garment": "kurti",
+  "name": "kurti_01",
+  "silhouette": "straight-a-line",
+  "body": {
+    "shoulder_height": 1.38,
+    "hem_height": 0.62,
+    "radial_segments": 72,
+    "vertical_segments": 34,
+    "depth_ratio": 0.72,
+    "_depth_ratio": "front-back squash; a torso is an ellipse, not a circle"
+  },
+  "widths": {
+    "shoulder": 0.188,
+    "chest": 0.183,
+    "waist": 0.171,
+    "hip": 0.194,
+    "hem": 0.212,
+    "chest_at": 0.8,
+    "waist_at": 0.58,
+    "hip_at": 0.3,
+    "_at": "normalised height up the garment: 0 = hem, 1 = shoulder"
+  },
+  "neckline": {
+    "type": "mandarin",
+    "radius": 0.062,
+    "depth": 0.055,
+    "collar_height": 0.045,
+    "collar_flare": 1.06
+  },
+  "sleeves": {
+    "type": "three_quarter",
+    "length": 0.375,
+    "armhole_half_angle": 34,
+    "upper_radius": 0.058,
+    "cuff_radius": 0.041,
+    "outward": 0.022,
+    "_outward": "how far the sleeve eases away from the body as it descends. Keep small \u2014 arms hang down, they do not stick out sideways.",
+    "segments": 18,
+    "radial_segments": 20
+  },
+  "side_slit": {
+    "enabled": true,
+    "start_height": 0.34,
+    "half_angle": 5.0,
+    "_start_height": "normalised: 0.34 = just below the hip, matching the reference"
+  },
+  "hem": {
+    "type": "straight",
+    "flare_ease": 1.35
+  },
+  "fabric_thickness": 0.004,
+  "drape": {
+    "macro_amp": 0.0075,
+    "macro_freq": 3,
+    "pleat_amp": 0.0052,
+    "pleat_freq": 13,
+    "micro_amp": 0.0021,
+    "micro_freq": 34,
+    "gravity_bias": 1.5,
+    "_comment": "Three fold scales layered: macro drape, medium pleats, micro wrinkles. Amplitude scales toward the hem (gravity_bias) because fabric hangs looser the further it falls from the shoulder."
+  },
+  "material": {
+    "fabric": "cotton",
+    "print_texture": "public/prints/kurti-bagru-1.jpg",
+    "base_tint": [
+      0.86,
+      0.82,
+      0.72,
+      1.0
+    ],
+    "uv_scale": [
+      1.15,
+      1.55
+    ],
+    "presets": {
+      "cotton": {
+        "roughness": 0.78,
+        "sheen": 0.16,
+        "specular": 0.28
+      },
+      "silk": {
+        "roughness": 0.32,
+        "sheen": 0.55,
+        "specular": 0.6
+      },
+      "rayon": {
+        "roughness": 0.58,
+        "sheen": 0.3,
+        "specular": 0.42
+      },
+      "linen": {
+        "roughness": 0.84,
+        "sheen": 0.1,
+        "specular": 0.24
+      },
+      "chanderi": {
+        "roughness": 0.44,
+        "sheen": 0.42,
+        "specular": 0.5
+      },
+      "viscose": {
+        "roughness": 0.52,
+        "sheen": 0.34,
+        "specular": 0.45
+      }
+    },
+    "_color_note": "base_tint is LINEAR, not sRGB. Blender converts linear->sRGB on display, so entering sRGB hex values directly renders washed out."
+  },
+  "export": {
+    "dir": "public/models",
+    "basename": "kurti",
+    "levels": {
+      "high": 1.0,
+      "normal": 0.55,
+      "low": 0.25
+    }
+  }
+}
