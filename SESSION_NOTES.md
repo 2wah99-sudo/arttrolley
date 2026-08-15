@@ -9,6 +9,33 @@ Repo: `github.com/2wah99-sudo/arttrolley`
 
 ---
 
+## ✅ APPROVED BASELINE — `aec4bf3` (tag `approved-baseline`)
+
+The user reviewed the site running from this exact commit and said **"this is the website I
+want."** Treat it as the known-good reference point. To return to it:
+`git checkout approved-baseline`.
+
+Verified live at this commit: 3 canvases render at correct sizes, 15 sections, ~13,200px
+scroll, **no console errors**.
+
+**Nothing was missing or lost.** A concern was raised that "the transitions / thread
+animations are gone" — investigated directly against `origin` and it was a false alarm.
+All animation components and all cream styling are present and pushed. Two things that
+can create that impression, both intentional:
+- `body` is `#000000`, not cream. Cream is applied **per-section**, not site-wide. A full
+  cream reskin was deliberately *not* done — it would abandon the black/red brand identity
+  and require recolouring every section plus flipping text colours for legibility. Still an
+  open option if wanted.
+- The **red-swirl hero is gone because it was explicitly deleted on request** ("remove this
+  from the website"). It held Hero3D + AuroraText + the "Enter the bazaar" buttons. The page
+  now opens on `ThreadWeaveIntro`. Recoverable from commit `a83bfda`
+  ("Archive: red/orange swirl hero + cream tokens + thread-weave intro").
+
+**Also worth knowing:** `useGLTF` in `OutfitModel` suspends, and there is **no `<Suspense>`
+boundary** in `FashionScene`. This was checked and is currently *not* breaking anything — the
+canvas renders fine. But it is fragile: a slower GLB load or a larger model could surface it.
+Adding a `<Suspense>` boundary around the garments is cheap insurance.
+
 ## ▶ START HERE — active work and next step
 
 **Active thread:** procedural **kurti** 3D garment generator (Blender → GLB → Three.js),
