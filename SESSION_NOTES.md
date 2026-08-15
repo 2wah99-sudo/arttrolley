@@ -1,8 +1,38 @@
 # ARTTROLLEY — Session Handoff Notes
 
-State as of commit `95209f0` on branch `fix-waterfall-audio`. Build verified clean
+State as of commit `59b4e33` on branch `fix-waterfall-audio`. Working tree **clean**,
+**0 unpushed commits**, local and remote hashes identical. Build verified clean
 (`npm run build` passes). **Nothing has been pushed to `main`** — all work is on the
 feature branch, and Vercel treats it as a preview deploy.
+
+Repo: `github.com/2wah99-sudo/arttrolley`
+
+---
+
+## ▶ START HERE — active work and next step
+
+**Active thread:** procedural **kurti** 3D garment generator (Blender → GLB → Three.js),
+now wired into the live site. See "Kurti generator" below.
+
+**Next concrete step — pick one:**
+1. **Fix the print mismatch** (recommended, highest visual payoff). The reference kurta is
+   *cream with delicate rose sprigs*; the model currently renders **bold red-on-black**,
+   because that is genuinely what `public/prints/kurti-bagru-1.jpg` is. Try the other
+   `kurti-bagru-2..5.jpg` prints, or generate a cream floral. Change one line:
+   `material.print_texture` in `blender/config/kurti_01.json`, then rerun the generator.
+2. **Fix square shoulders.** The yoke goes straight out horizontally; real garments have a
+   shoulder slope. Needs a downward slope applied to the shoulder ring in
+   `create_kurti_body()`.
+
+**⚠ DECISION NEEDED — saree vs kurti (do this before more garment work):**
+`blender/generate_garment.py` + `blender/garment-config.json` are the **saree** generator
+(pallu sway, procedural drape folds, `cloth_sim.enabled: false`, fitted blouse). They were
+edited **outside the main working thread** and are committed and pushed. They are now a
+**parallel, unused path** — the site consumes `generate_kurti.py` → `kurti.glb`, not the
+saree output. The user pivoted saree → kurti mid-session.
+Decide: **keep** the saree generator (useful if sarees return as a product line) or
+**retire** it (delete, or move to `blender/archive/`) so future sessions don't confuse the
+two pipelines. Nothing currently imports the saree GLBs.
 
 ## Environment quirks that cost real time — read before debugging
 
@@ -47,6 +77,16 @@ feature branch, and Vercel treats it as a preview deploy.
 7. **R3F `<line>` collides with the DOM/SVG `<line>`** in TS's JSX namespace, resolving to
    `SVGLineElementAttributes`. Fixed by constructing `THREE.Line` objects directly and
    rendering them via `<primitive object={...} />`.
+8. **Texture rendered as flat grey — the single most misleading bug so far.** A red-on-black
+   print came out washed-out pale grey. It looked exactly like "texture failed to load", and
+   two rounds of lighting/exposure tuning did nothing. Root cause: the *same* Image Texture
+   node was wired into **both** Base Color **and** the Bump `Height` input. Blender then
+   reclassifies that image as **Non-Color** data, so the print is read as raw linear values
+   instead of sRGB. Diagnosed by dumping the material graph (`blender/debug_material.py`),
+   which printed `colorspace=Non-Color`. **Rule: colour and relief must never share a texture
+   node.** Base Color gets an explicit `colorspace_settings.name = 'sRGB'`; the weave bump now
+   comes from a procedural noise node (a printed motif is flat on real cloth anyway — it is
+   not embossed).
 
 ## Asset pipeline
 
@@ -78,17 +118,33 @@ founder / Quote / Cta / Footer
   Progress is written to a **ref, not React state**, so scrolling never re-renders React.
 - `FabricTransition.tsx` — 4 densified clusters (red/cream/red/cream) lerping into 2 garment
   outlines. Reversible because position is `f(progress)`, not `f(time)`.
-- `OutfitModel.tsx` — **placeholder** `ExtrudeGeometry` garment. Designed to be swapped for a
-  real GLB (`<primitive object={gltf.scene} />`) without touching animation code.
+- `OutfitModel.tsx` — **now loads the real kurti GLB** (no longer `ExtrudeGeometry`). Props are
+  deliberately unchanged (`x` / `color` / `progress` / `delay`) so `FashionScene` needed zero
+  edits during the swap. `color` is now an optional tint (`tintStrength`, default `0` = leave
+  the print untouched).
+- `GarmentLoader.tsx` — the swap layer: `OutfitModel → GarmentLoader → kurti.glb`. Recentres on
+  the bounding box and normalises to a target height (the Blender model is at real-world scale,
+  z ≈ 0.62–1.38), so no magic offsets at call sites. **Clones materials per instance** —
+  `scene.clone(true)` shares materials, so without this, animating opacity on one garment bleeds
+  into every other instance. Swapping garments = change `GARMENT_URL` only.
 - `CameraController.tsx` — damped dolly + orbit driven by progress.
 - `FashionScene.tsx` — canvas, 3-point lighting, composition.
 
 ## Known-unfinished / honest status
 
-- **`OutfitModel` is placeholder geometry, not photoreal cloth.** Producing garments matching
-  the reference video needs real modeled GLBs (CLO3D / Marvelous Designer). Attempts to model
-  from scratch in Blender produced a smooth blob — subsurf rounds a cube into a pebble and no
-  parameter tuning fixed it. This is the honest ceiling of from-scratch modeling here.
+- **The kurti is a clean stylised garment, not photoreal cloth.** It has real geometry
+  (collar, sleeves, slits, folds) and a correct print, but no seam allowances, no collar roll,
+  no fabric self-shadowing in the folds. Procedural sine folds can *suggest* drape but cannot
+  reproduce how cloth gathers at the elbow or breaks over the hip — that needs cloth
+  simulation, which is not viable here (2 cores, no CUDA; headless cloth sim silently
+  no-opped). Closing that gap needs a CUDA machine or a CLO3D/Marvelous export. The
+  `GarmentLoader` abstraction makes swapping one in a single-URL change.
+- **Photogrammetry is a dead end for the AI videos — do not retry it.** Two independent
+  blockers, both verified: (1) no CUDA on this machine — Meshroom's `DepthMap` node and
+  COLMAP's `patch_match_stereo` are both CUDA-only with no CPU fallback, so dense
+  reconstruction hard-fails at step 5; (2) more fundamentally, AI-generated video has no real
+  camera and no temporally consistent geometry, so feature matching has nothing valid to
+  match. This is a category mismatch, not a tuning problem.
 - **`ThreadWeaveIntro` silhouette is approximate.** Curve control points were hand-estimated
   from the reference sketch, not traced. User feedback was "not matching the back pose."
   Accurate fix = trace the reference into real coordinates.
@@ -99,6 +155,45 @@ founder / Quote / Cta / Footer
 - **shadcn MCP was not installed** — it requires the user's own account and a paid Pro
   subscription. `frontend-design` plugin, `gsap-animation-expert`, and `interface-design`
   skills *are* installed.
+
+## Kurti generator (the active garment pipeline)
+
+```
+blender/config/kurti_01.json     all tunable params — edit this, not the code
+blender/generate_kurti.py        the generator (modular functions)
+blender/preview_kurti.py         renders front/side/back → public/generated/kurti_{view}.png
+blender/debug_material.py        dumps material graph + UV ranges (caught the sRGB bug)
+```
+
+Run:
+```bash
+"/d/Blender/blender-5.2.0-windows-x64/blender.exe" -noaudio --background \
+  --python blender/generate_kurti.py -- config/kurti_01.json
+```
+
+Outputs `public/models/kurti_high.glb` (7.6k faces) / `kurti.glb` (5.4k, site default) /
+`kurti_low.glb` (3.0k). Verified serving in-browser: `200`, `model/gltf-binary`, ~272 KB,
+no console errors.
+
+**Adding another garment:** copy `config/kurti_01.json` → `kurti_02.json`, edit values, pass it
+as the arg. No code changes. Functions are split as
+`create_kurti_body / create_neckline / create_sleeves / create_folds / create_fabric_material`.
+
+Real geometry (not painted into the texture): mandarin collar, 3/4 tapered sleeves, side slits
+(faces omitted below the hip), straight hem, 4 mm `Solidify` thickness, and three superimposed
+fold scales (macro drape + pleats + micro wrinkles) with amplitude biased toward the hem.
+
+**Geometry bugs already fixed — don't reintroduce:**
+- Sleeves swept outward as fast as they dropped → flat "wings". Arms hang; keep
+  `sleeves.outward` small (~0.022).
+- Sleeves started *below* shoulder height → visible detached notch. They now start level with
+  the shoulder and overlap into the body.
+- Sleeve UVs used a fixed scale → motifs ~3× denser than the body. Sleeve UV scale is now
+  **derived proportionally** from the body's UV scale and relative circumference, so the print
+  stays the same physical size across panels even if the config changes.
+
+**Config gotcha:** colours in the Blender configs are **linear**, not sRGB. sRGB `#A8291F`
+becomes ~`[0.39, 0.022, 0.013]`. Entering sRGB hex directly renders washed-out/pink.
 
 ## Verified numbers (scroll → video frame, measured live)
 
